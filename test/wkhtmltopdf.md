@@ -2,8 +2,8 @@
 title: A demo document
 author: Marek Hudik
 lang: en
-header-html: test header
-footer-html: test footer
+header-html: wkhtmltopdf-header.html
+footer-html: wkhtmltopdf-footer.html
 ---
 # Documentation demo
 
