@@ -64,6 +64,9 @@ $endfor$
   $endif$
   <div class="container">
     <div class="row">
+      $for(include-before)$
+      $include-before$
+      $endfor$
       $if(toc)$
       <div id="$idprefix$TOC" class="span3">
         <div class="well toc">
@@ -75,9 +78,6 @@ $endfor$
       </div>
       $endif$
       <div class="span$if(toc)$9$else$12$endif$">
-      $for(include-before)$
-      $include-before$
-      $endfor$
       $body$
       $for(include-after)$
       $include-after$
