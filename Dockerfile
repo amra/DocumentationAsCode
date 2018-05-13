@@ -17,7 +17,8 @@ RUN dpkg -i /tmp/pandoc.deb && rm -f /tmp/pandoc.deb
 RUN pandoc -v
 
 # wkhtmltopdf
-RUN apt-get install xz-utils
+RUN apt-get install -y xz-utils
+RUN apt-get install -y libssl1.0-dev    # https://github.com/amra/DocumentationAsCode/issues/2
 ADD https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz /tmp/wkhtmltox.tar.xz
 RUN cd /tmp && tar -xf /tmp/wkhtmltox.tar.xz wkhtmltox/bin/wkhtmltopdf
 RUN mv /tmp/wkhtmltox/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
