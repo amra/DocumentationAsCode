@@ -9,6 +9,7 @@ less \
 ack-grep \
 apt-utils
 
+# Latex
 RUN apt-get install -y texlive
 
 # Pandoc 2.2

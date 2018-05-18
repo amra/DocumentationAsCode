@@ -1,2 +1,2 @@
-test/*.pdf
+output/*.pdf
 build-local.sh
