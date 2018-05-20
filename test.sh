@@ -1,7 +1,28 @@
-#!/bin/bash
 mkdir -p output
+#!/bin/bash
+mkdir -p /tmp/work
+rm /tmp/work/* -rf
 
 BASE=`pwd`
+
+# html
+echo "html *************************************************************"
+
+docker run -w /foo \
+   -v /tmp/work:/foo \
+   -v $BASE/test/output:/foo/output \
+   -v $BASE/test/html:/foo/input \
+   -v $BASE/test/image:/foo/image \
+   -v $BASE/template/pandoc-bootstrap-adaptive-template/standalone.html:/root/.pandoc/templates/template.html \
+   -v $BASE/template/pandoc-bootstrap-adaptive-template/template.css:/foo/template.css \
+   -v $BASE/template/pandoc-bootstrap-adaptive-template/menu:/foo/menu \
+   -v $BASE/template/pandoc-bootstrap-adaptive-template/script.js:/foo/script.js \
+   -v $BASE/template/pandoc-bootstrap-adaptive-template/jquery.sticky-kit.js:/foo/jquery.sticky-kit.js \
+   -v $BASE/template/pandoc-bootstrap-adaptive-template:/foo/pandoc-bootstrap-adaptive-template \
+   amra/documentation-as-code \
+pandoc --self-contained --standalone --number-sections --table-of-contents input/html.md -o output/html.html --template template --include-before-body input/html-intro.html
+
+exit
 
 # wkhtmltopdf
 echo "wkhtmltopdf *************************************************************"
