@@ -67,17 +67,14 @@ docker run -w /foo \
    amra/documentation-as-code \
 pandoc --self-contained --standalone --number-sections --table-of-contents input/html.md -o output/html_pandoc-goodies.html --template template --include-before-body input/html-intro.html
 
+# html
+echo "html *************************************************************"
 
-
-exit
-
-# wkhtmltopdf
-echo "wkhtmltopdf *************************************************************"
-docker run -w /foo -v $BASE/test/output:/foo/output -v $BASE/test/wkhtmltopdf:/foo/input -v $BASE/test/image:/foo/image -v $BASE/template:/foo/template amra/documentation-as-code \
-pandoc --self-contained --standalone --number-sections --table-of-contents --pdf-engine=wkhtmltopdf input/wkhtmltopdf.md -o output/wkhtmltopdf.pdf --template template/pandoc-bootstrap-template.html --include-before-body input/wkhtmltopdf-intro.html
-
-# WeasyPrint
-echo -e "\n\n\n"
-echo "weasyprint **************************************************************"
-docker run -w /foo -v $BASE/test/output:/foo/output -v $BASE/test/weasyprint:/foo/input -v $BASE/test/image:/foo/image -v $BASE/template:/foo/template amra/documentation-as-code \
-pandoc --self-contained --standalone --number-sections --table-of-contents --pdf-engine=weasyprint input/weasyprint.md -o output/weasyprint.pdf --template template/pandoc-bootstrap-template.html --include-before-body input/weasyprint-intro.html
+docker run -w /foo \
+   -v /tmp/work:/foo \
+   -v $BASE/output:/foo/output \
+   -v $BASE/test/html:/foo/input \
+   -v $BASE/test/image:/foo/image \
+   -v $BASE/template/pandoc-goodies/templates/html5/github/GitHub.html5:/root/.pandoc/templates/template.html \
+   amra/documentation-as-code \
+pandoc --self-contained --standalone --number-sections --table-of-contents input/html.md -o output/html_pandoc-goodies-print.html --template template --include-before-body input/html-intro-page-break.html
