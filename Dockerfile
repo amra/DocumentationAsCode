@@ -1,37 +1,42 @@
-FROM ubuntu:bionic
+#https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md
+FROM node:8-slim
 
-RUN apt-get update && apt-get install -y \
-vim-tiny \
-apt-transport-https \
-curl \
-wget \
-less \
-ack-grep \
-apt-utils
+# See https://crbug.com/795759
+RUN apt-get update && apt-get install -yq libgconf-2-4
 
-# Latex
-RUN apt-get install -y texlive
+# Install latest chrome dev package and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
+# Note: this installs the necessary libs to make the bundled version of Chromium that Puppeteer
+# installs, work.
+RUN apt-get update && apt-get install -y wget --no-install-recommends \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst ttf-freefont \
+      --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get purge --auto-remove -y curl \
+    && rm -rf /src/*.deb
 
-# Pandoc 2.2
-ADD https://github.com/jgm/pandoc/releases/download/2.2/pandoc-2.2-1-amd64.deb /tmp/pandoc.deb
-RUN dpkg -i /tmp/pandoc.deb && rm -f /tmp/pandoc.deb
-RUN pandoc -v
+# It's a good idea to use dumb-init to help prevent zombie chrome processes.
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
 
-# wkhtmltopdf
-RUN apt-get install -y xz-utils
-RUN apt-get install -y libssl1.0-dev    # https://github.com/amra/DocumentationAsCode/issues/2
-ADD https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz /tmp/wkhtmltox.tar.xz
-RUN cd /tmp && tar -xf /tmp/wkhtmltox.tar.xz wkhtmltox/bin/wkhtmltopdf
-RUN mv /tmp/wkhtmltox/bin/wkhtmltopdf /usr/bin/wkhtmltopdf
-RUN wkhtmltopdf -V
+# Uncomment to skip the chromium download when installing puppeteer. If you do,
+# you'll need to launch puppeteer with:
+#     browser.launch({executablePath: 'google-chrome-unstable'})
+# ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-# WeasyPrint
-RUN apt-get install -y build-essential python3-dev python3-pip python3-setuptools \
-    python3-wheel python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
-RUN pip3 install WeasyPrint
+# Install puppeteer so it's available in the container.
+RUN npm i puppeteer
 
+# Add user so we don't need --no-sandbox.
+RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+    && mkdir -p /home/pptruser/Downloads \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && chown -R pptruser:pptruser /node_modules
 
-# pandoc directory
-RUN mkdir ~/.pandoc
-RUN mkdir ~/.pandoc/filters
-RUN mkdir ~/.pandoc/templates
+# Run everything after as non-privileged user.
+USER pptruser
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["google-chrome-unstable"]
