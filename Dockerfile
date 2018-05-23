@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
     && apt-get purge --auto-remove -y curl \
     && rm -rf /src/*.deb
 
+ADD https://github.com/jgm/pandoc/releases/download/2.2/pandoc-2.2-1-amd64.deb /tmp/pandoc.deb
+RUN dpkg -i /tmp/pandoc.deb && rm -f /tmp/pandoc.deb
+RUN pandoc -v
+
 # It's a good idea to use dumb-init to help prevent zombie chrome processes.
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
@@ -27,16 +31,21 @@ RUN chmod +x /usr/local/bin/dumb-init
 # ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 # Install puppeteer so it's available in the container.
-RUN npm i puppeteer
+#RUN npm i puppeteer
+RUN npm install --global mermaid-filter --unsafe-perm=true
 
 # Add user so we don't need --no-sandbox.
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
     && chown -R pptruser:pptruser /home/pptruser \
-    && chown -R pptruser:pptruser /node_modules
+    && chown -R pptruser:pptruser /usr/local/lib/node_modules
 
 # Run everything after as non-privileged user.
 USER pptruser
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["google-chrome-unstable"]
+
+COPY mermaid-test /tmp/mermaid-test.md
+
+RUN pandoc -F mermaid-filter -o /tmp/mermaid-test.html /tmp/mermaid-test.md
