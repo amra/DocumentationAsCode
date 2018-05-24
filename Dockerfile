@@ -25,6 +25,8 @@ RUN pandoc -v
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
 
+#https://github.com/Googlechrome/puppeteer/issues/290#issuecomment-360542685
+RUN apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libnss3 lsb-release xdg-utils wget
 # Uncomment to skip the chromium download when installing puppeteer. If you do,
 # you'll need to launch puppeteer with:
 #     browser.launch({executablePath: 'google-chrome-unstable'})
@@ -33,6 +35,12 @@ RUN chmod +x /usr/local/bin/dumb-init
 # Install puppeteer so it's available in the container.
 #RUN npm i puppeteer
 RUN npm install --global mermaid-filter --unsafe-perm=true
+
+#https://github.com/GoogleChrome/puppeteer/issues/342
+COPY ns-check.sh /tmp/ns-check.sh
+COPY deb-check.sh /tmp/deb-check.sh
+RUN /tmp/deb-check.sh
+RUN /tmp/ns-check.sh
 
 # Add user so we don't need --no-sandbox.
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
@@ -48,4 +56,4 @@ CMD ["google-chrome-unstable"]
 
 COPY mermaid-test /tmp/mermaid-test.md
 
-RUN pandoc -F mermaid-filter -o /tmp/mermaid-test.html /tmp/mermaid-test.md
+#RUN pandoc -F mermaid-filter -o /tmp/mermaid-test.html /tmp/mermaid-test.md
