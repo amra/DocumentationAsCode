@@ -1,5 +1,5 @@
-#https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md
 FROM node:8-slim
+#https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md
 
 # See https://crbug.com/795759
 RUN apt-get update && apt-get install -yq libgconf-2-4
