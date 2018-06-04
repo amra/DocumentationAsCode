@@ -35,3 +35,5 @@ RUN pip3 install WeasyPrint
 RUN mkdir ~/.pandoc
 RUN mkdir ~/.pandoc/filters
 RUN mkdir ~/.pandoc/templates
+
+COPY template/github-markdown.html ~/.pandoc/templates

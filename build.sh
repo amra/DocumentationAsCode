@@ -1,1 +1,1 @@
-docker build -t amra/documentation-as-code $1 .
+docker build -t marekhudik/document-as-code $1 .
